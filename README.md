@@ -77,18 +77,22 @@
 1. Build and deploy the Docker image with:
     ```
     PROJECT=<YOUR_GCP_PROJECT_ID>
-    SERVICE=go-chi-mysql
+    CLOUD_RUN_SVC=go-chi-mysql
     gcloud config set project ${PROJECT}
-    gcloud builds submit --tag gcr.io/${PROJECT}/${SERVICE}
-    gcloud beta run deploy --image gcr.io/${PROJECT}/${SERVICE} --region us-central1
+    gcloud builds submit --tag gcr.io/${PROJECT}/${CLOUD_RUN_SVC}
+    gcloud beta run deploy ${CLOUD_RUN_SVC} \
+        --image gcr.io/${PROJECT}/${CLOUD_RUN_SVC} \
+        --allow-unauthenticated \
+        --update-env-vars DB_USERNAME=$DB_USERNAME,DB_PASSWORD=$DB_PASSWORD,DB_NAME=$DB_NAME \
+        --region us-central1
     ````
 1. Retrieve the exposed endpoint with:
     ```
-    ENDPOINT=$(gcloud beta run services describe ${SERVICE} --region us-central1 --format "value(status.address.hostname)")
+    CLOUD_RUN_ENDPOINT=$(gcloud beta run services describe ${CLOUD_RUN_SVC} --region us-central1 --format "value(status.address.hostname)")
     ```
 1. Query the endpoint, for example with:
     ```
-    $ curl $ENDPOINT}/users
+    $ curl ${CLOUD_RUN_ENDPOINT}/users
     []
     ```
 
@@ -98,3 +102,4 @@
 - https://semaphoreci.com/community/tutorials/building-and-testing-a-rest-api-in-go-with-gorilla-mux-and-postgresql
 - https://cloud.google.com/go/getting-started/using-cloud-sql
 - https://github.com/lvaylet/go-chi-rest-api
+- https://thenewstack.io/tutorial-deploying-a-web-application-on-google-cloud-run/
