@@ -78,7 +78,7 @@
     ```
     PROJECT=<YOUR_GCP_PROJECT_ID>
     SERVICE=go-chi-mysql
-    gcloud config set projet ${PROJECT}
+    gcloud config set project ${PROJECT}
     gcloud builds submit --tag gcr.io/${PROJECT}/${SERVICE}
     gcloud beta run deploy --image gcr.io/${PROJECT}/${SERVICE} --region us-central1
     ````
