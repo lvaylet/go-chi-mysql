@@ -12,7 +12,7 @@ func main() {
 		os.Getenv("DB_PASSWORD"),
 		os.Getenv("DB_NAME"))
 
-	port := getEnvWithDefault("LISTEN_ON_PORT", "8080")
+	port := getEnvWithDefault("PORT", "8080")
 	a.Run(fmt.Sprintf(":%s", port))
 }
 

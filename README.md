@@ -20,12 +20,12 @@
     2019/05/07 20:25:15 Listening on 127.0.0.1:3306 for devops-terraform-deployer:us-central1:store
     2019/05/07 20:25:15 Ready for new connections
     ```
-1. Create environment variables for `DB_USERNAME`, `DB_PASSWORD`, `DB_NAME` and `LISTEN_ON_PORT` (used in `main.go` and `main_test.go`) with:
+1. Create environment variables for `DB_USERNAME`, `DB_PASSWORD`, `DB_NAME` and `PORT` (used in `main.go` and `main_test.go`) with:
     ```
     DB_USERNAME=...
     DB_PASSWORD=...
     DB_NAME=rest-api-example
-    LISTEN_ON_PORT=8080
+    PORT=8080
     ```
 1. Run the tests with:
     ```
@@ -72,11 +72,29 @@
     []
     ```
 
-## Deployment to GCP
+## Deployment to Google Cloud Run
 
-TODO
+1. Build and deploy the Docker image with:
+    ```
+    PROJECT=<YOUR_GCP_PROJECT_ID>
+    SERVICE=go-chi-mysql
+    gcloud config set projet ${PROJECT}
+    gcloud builds submit --tag gcr.io/${PROJECT}/${SERVICE}
+    gcloud beta run deploy --image gcr.io/${PROJECT}/${SERVICE} --region us-central1
+    ````
+1. Retrieve the exposed endpoint with:
+    ```
+    ENDPOINT=$(gcloud beta run services describe ${SERVICE} --region us-central1 --format "value(status.address.hostname)")
+    ```
+1. Query the endpoint, for example with:
+    ```
+    $ curl $ENDPOINT}/users
+    []
+    ```
 
 ## References
 
 - https://medium.com/@kelvin_sp/building-and-testing-a-rest-api-in-golang-using-gorilla-mux-and-mysql-1f0518818ff6
+- https://semaphoreci.com/community/tutorials/building-and-testing-a-rest-api-in-go-with-gorilla-mux-and-postgresql
 - https://cloud.google.com/go/getting-started/using-cloud-sql
+- https://github.com/lvaylet/go-chi-rest-api
