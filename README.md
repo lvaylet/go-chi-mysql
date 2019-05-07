@@ -3,7 +3,8 @@
 ## Prerequisites
 
 1. Create a [Cloud SQL for MySQL Second Generation](https://cloud.google.com/go/getting-started/using-cloud-sql#create_a_cloud_sql_instance) instance in GCP. Write down the associated username and password (initially `root` but feel free to create a dedicated user).
-1. Create a `rest-api-example` database and write down the connection name, in the format `[PROJECT_NAME]:[REGION_NAME]:[INSTANCE_NAME]`, for example `devops-terraform-deployer:us-central1:rest-api-example`.
+1. Create a database (for example `rest-api-example`)
+1. Write down the connection name, in the format `[PROJECT_NAME]:[REGION_NAME]:[INSTANCE_NAME]` (for example `devops-terraform-deployer:us-central1:rest-api-example`).
 1. For local development, download and install the [Cloud SQL Proxy](https://cloud.google.com/go/getting-started/using-cloud-sql#install_the_cloud_sql_proxy). For example, for MacOS 64-bit:
     ```
     $ curl -o cloud_sql_proxy https://dl.google.com/cloudsql/cloud_sql_proxy.darwin.amd64
@@ -19,7 +20,13 @@
     2019/05/07 20:25:15 Listening on 127.0.0.1:3306 for devops-terraform-deployer:us-central1:store
     2019/05/07 20:25:15 Ready for new connections
     ```
-1. Fill in `DB_USERNAME` and `DB_PASSWORD` name in `main.go` and `main_test.go`.
+1. Create environment variables for `DB_USERNAME`, `DB_PASSWORD`, `DB_NAME` and `LISTEN_ON_PORT` (used in `main.go` and `main_test.go`) with:
+    ```
+    DB_USERNAME=...
+    DB_PASSWORD=...
+    DB_NAME=rest-api-example
+    LISTEN_ON_PORT=8080
+    ```
 1. Run the tests with:
     ```
     $ go test -v
