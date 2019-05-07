@@ -3,11 +3,15 @@
 ## Prerequisites
 
 1. Create a [Cloud SQL for MySQL Second Generation](https://cloud.google.com/go/getting-started/using-cloud-sql#create_a_cloud_sql_instance) instance in GCP. Write down the associated username and password (initially `root` but feel free to create a dedicated user).
-2. Create a `rest-api-example` database and write down the connection name, in the format `[PROJECT_NAME]:[REGION_NAME]:[INSTANCE_NAME]`, for example `devops-terraform-deployer:us-central1:rest-api-example`.
+1. Create a `rest-api-example` database and write down the connection name, in the format `[PROJECT_NAME]:[REGION_NAME]:[INSTANCE_NAME]`, for example `devops-terraform-deployer:us-central1:rest-api-example`.
+1. For local development, download and install the [Cloud SQL Proxy](https://cloud.google.com/go/getting-started/using-cloud-sql#install_the_cloud_sql_proxy). For example, for MacOS 64-bit:
+    ```
+    $ curl -o cloud_sql_proxy https://dl.google.com/cloudsql/cloud_sql_proxy.darwin.amd64
+    $ chmod +x cloud_sql_proxy
+    ```
 
 ## Local Development
 
-1. Download and install the [Cloud SQL Proxy](https://cloud.google.com/go/getting-started/using-cloud-sql#install_the_cloud_sql_proxy).
 1. Start the Cloud SQL Proxy using the connection name from the previous step.
     ```
     $ ./cloud_sql_proxy -instances="devops-terraform-deployer:us-central1:rest-api-example"=tcp:3306
@@ -39,7 +43,7 @@
     $ go build
     $ ./go-chi-mysql
     ```
-1. Query the REST API with:
+1. Open another terminal and query the REST API with:
     ```
     $ curl http://localhost:8080/users
     []
