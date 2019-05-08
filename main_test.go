@@ -19,6 +19,7 @@ func TestMain(m *testing.M) {
 	a.Initialize(
 		os.Getenv("DB_USERNAME"),
 		os.Getenv("DB_PASSWORD"),
+		os.Getenv("DB_INSTANCE_NAME"),
 		os.Getenv("DB_NAME"))
 
 	ensureTableExists()

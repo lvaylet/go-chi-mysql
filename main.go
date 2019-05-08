@@ -10,6 +10,7 @@ func main() {
 	a.Initialize(
 		os.Getenv("DB_USERNAME"),
 		os.Getenv("DB_PASSWORD"),
+		os.Getenv("DB_INSTANCE_NAME"),
 		os.Getenv("DB_NAME"))
 
 	port := getEnvWithDefault("PORT", "8080")
