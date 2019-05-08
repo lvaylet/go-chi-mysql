@@ -8,10 +8,10 @@ import (
 func main() {
 	a := App{}
 	a.Initialize(
-		os.Getenv("DB_USERNAME"),
-		os.Getenv("DB_PASSWORD"),
-		os.Getenv("DB_INSTANCE_NAME"),
-		os.Getenv("DB_NAME"))
+		os.Getenv("CLOUD_SQL_DB_USERNAME"),
+		os.Getenv("CLOUD_SQL_DB_PASSWORD"),
+		os.Getenv("CLOUD_SQL_INSTANCE_CONNECTION_NAME"),
+		os.Getenv("CLOUD_SQL_DB_NAME"))
 
 	port := getEnvWithDefault("PORT", "8080")
 	a.Run(fmt.Sprintf(":%s", port))

@@ -10,23 +10,32 @@
     $ curl -o cloud_sql_proxy https://dl.google.com/cloudsql/cloud_sql_proxy.darwin.amd64
     $ chmod +x cloud_sql_proxy
     ```
+1. Configure `gcloud` for your project, region and Cloud SQL instance with:
+    ```
+    export PROJECT=<YOUR_GCP_PROJECT_ID>
+    # Cloud Run only supports running in `us-central1` at the time of writing
+    export REGION=us-central1
+    # Cloud SQL
+    export CLOUD_SQL_INSTANCE_ID=...
+    export CLOUD_SQL_INSTANCE_CONNECTION_NAME=${PROJECT}:${REGION}:${CLOUD_SQL_INSTANCE_ID}
+    export CLOUD_SQL_DB_NAME=...
+    export CLOUD_SQL_DB_USERNAME=...
+    export CLOUD_SQL_DB_PASSWORD=...
+    # Cloud Run
+    export CLOUD_RUN_SVC=go-chi-mysql
+
+    gcloud config set project ${PROJECT}
+    gcloud config set run/region ${REGION}
+    ```
 
 ## Local Development
 
 1. Start the Cloud SQL Proxy using the connection name from the previous step.
     ```
-    $ ./cloud_sql_proxy -instances="devops-terraform-deployer:us-central1:store"=tcp:3306
+    $ ./cloud_sql_proxy -instances="${CLOUD_SQL_INSTANCE_CONNECTION_NAME}"=tcp:3306
     2019/05/07 20:25:15 current FDs rlimit set to 12800, wanted limit is 8500. Nothing to do here.
-    2019/05/07 20:25:15 Listening on 127.0.0.1:3306 for devops-terraform-deployer:us-central1:store
+    2019/05/07 20:25:15 Listening on 127.0.0.1:3306 for <CLOUD_SQL_INSTANCE_CONNECTION_NAME>
     2019/05/07 20:25:15 Ready for new connections
-    ```
-1. Create environment variables for `DB_USERNAME`, `DB_PASSWORD`, `DB_INSTANCE_NAME`, `DB_NAME` and `PORT` (used in `main.go` and `main_test.go`) with:
-    ```
-    export DB_USERNAME=...
-    export DB_PASSWORD=...
-    export DB_INSTANCE_NAME=devops-terraform-deployer:us-central1:store
-    export DB_NAME=rest_api_example
-    export PORT=8080
     ```
 1. Run the tests with:
     ```
@@ -48,8 +57,8 @@
     ```
 1. Build and run the app with:
     ```
-    $ go build
-    $ ./go-chi-mysql
+    go build
+    ./go-chi-mysql
     ```
 1. Open another terminal and query the REST API with:
     ```
@@ -75,18 +84,20 @@
 
 ## Deployment to Google Cloud Run
 
-1. Build and deploy the Docker image with:
+1. At the time of writing, Cloud Run does not officially support connecting to Cloud SQL instances. The [available workaround](https://medium.com/@petomalina/connecting-to-cloud-sql-from-cloud-run-dcff2e20152a) involves embedding the Cloud SQL Proxy inside the Docker image and granting the Cloud Run Service Account the Cloud SQL Client role. Make sure the Service Account ending with `@serverless-robot-prod.iam.gserviceaccount.com` has the right permissions with:
     ```
-    export PROJECT=<YOUR_GCP_PROJECT_ID>
-    export REGION=us-central1
-    export CLOUD_RUN_SVC=go-chi-mysql
-    gcloud config set project ${PROJECT}
-    gcloud config set run/region ${REGION}
+    gcloud projects add-iam-policy-binding ${PROJECT} \
+        --member serviceAccount:service-<YOUR_SA_ID>@serverless-robot-prod.iam.gserviceaccount.com \
+        --role roles/cloudsql.client
+    ```
+1. Build, push and deploy the Docker image with:
+    ```
     gcloud builds submit --tag gcr.io/${PROJECT}/${CLOUD_RUN_SVC}
     gcloud beta run deploy ${CLOUD_RUN_SVC} \
         --image gcr.io/${PROJECT}/${CLOUD_RUN_SVC} \
         --allow-unauthenticated \
-        --update-env-vars DB_USERNAME=$DB_USERNAME,DB_PASSWORD=$DB_PASSWORD,DB_INSTANCE_NAME=$DB_INSTANCE_NAME,DB_NAME=$DB_NAME
+        --set-env-vars \
+            CLOUD_SQL_DB_USERNAME=${CLOUD_SQL_DB_USERNAME},CLOUD_SQL_DB_PASSWORD=${CLOUD_SQL_DB_PASSWORD},CLOUD_SQL_INSTANCE_CONNECTION_NAME=${CLOUD_SQL_INSTANCE_CONNECTION_NAME},CLOUD_SQL_DB_NAME=${CLOUD_SQL_DB_NAME}
     ````
 1. Retrieve the exposed endpoint with:
     ```
@@ -106,3 +117,4 @@
 - https://github.com/lvaylet/go-chi-rest-api
 - https://thenewstack.io/tutorial-deploying-a-web-application-on-google-cloud-run/
 - https://github.com/GoogleCloudPlatform/golang-samples/blob/master/getting-started/bookshelf/config.go
+- https://medium.com/@petomalina/connecting-to-cloud-sql-from-cloud-run-dcff2e20152a
