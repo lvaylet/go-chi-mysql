@@ -22,7 +22,6 @@ type App struct {
 // Initialize is responsible for creating a database connection and wiring up the routes
 func (a *App) Initialize(user, password, instanceName, databaseName string) {
 	var err error
-	// a.DB, err = sql.Open("mysql", connectionString)
 	a.DB, err = configureCloudSQL(cloudSQLConfig{
 		Username: user,
 		Password: password,
@@ -167,7 +166,6 @@ func (a *App) initializeRoutes() {
 }
 
 type cloudSQLConfig struct {
-	// TODO Retrieve Database from Instance
 	Username, Password, Instance, Database string
 }
 

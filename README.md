@@ -105,3 +105,4 @@
 - https://cloud.google.com/go/getting-started/using-cloud-sql
 - https://github.com/lvaylet/go-chi-rest-api
 - https://thenewstack.io/tutorial-deploying-a-web-application-on-google-cloud-run/
+- https://github.com/GoogleCloudPlatform/golang-samples/blob/master/getting-started/bookshelf/config.go
