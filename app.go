@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 	"strconv"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -174,15 +173,22 @@ func configureCloudSQL(config cloudSQLConfig) (*sql.DB, error) {
 	// containers to detect whether the app runs on Google Cloud Run or locally.
 	// See https://cloud.google.com/run/docs/reference/container-contract#env-vars
 	// for the list of environment variables exposed by Google Cloud Run.
-	if os.Getenv("K_SERVICE") != "" {
-		// Running in production on Google Cloud Run.
-		return newMySQLDB(MySQLConfig{
-			Username:     config.Username,
-			Password:     config.Password,
-			UnixSocket:   "/cloudsql/" + config.Instance,
-			DatabaseName: config.Database,
-		})
-	}
+	//
+	// FIXME At the time of writing, Cloud Run does not support connecting to a
+	// Cloud SQL instance. A possible workaround involves embedding the Cloud
+	// SQL Proxy within the deployed Docker image. This makes determining
+	// whether we run locally or on Cloud Run irrelevant. Uncomment the next
+	// block when Cloud Run has official support for Cloud SQL.
+	//
+	// if os.Getenv("K_SERVICE") != "" {
+	// 	// Running in production on Google Cloud Run.
+	// 	return newMySQLDB(MySQLConfig{
+	// 		Username:     config.Username,
+	// 		Password:     config.Password,
+	// 		UnixSocket:   "/cloudsql/" + config.Instance,
+	// 		DatabaseName: config.Database,
+	// 	})
+	// }
 
 	// Running locally for development.
 	return newMySQLDB(MySQLConfig{

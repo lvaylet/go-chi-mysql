@@ -62,23 +62,22 @@
     ```
 1. Open another terminal and query the REST API with:
     ```
-    $ curl http://localhost:8080/users
+    $ API_ENDPOINT=https://localhost:8080
+    $ curl ${API_ENDPOINT}/users
     []
-    $ curl -X POST -d '{"name": "John", "age": 30}' http://localhost:8080/user
+    $ curl -X POST -d '{"name": "John", "age": 30}' ${API_ENDPOINT}/user
     {"id":1,"name":"John","age":30}
-    $ curl http://localhost:8080/users
+    $ curl ${API_ENDPOINT}/users
     [{"id":1,"name":"John","age":30}]
-    $ curl http://localhost:8080/user/1
+    $ curl ${API_ENDPOINT}/user/1
     {"id":1,"name":"John","age":30}
-    $ curl http://localhost:8080/user/1
-    {"id":1,"name":"John","age":30}
-    $ curl -X PUT -d '{"name": "John", "age": 32}' http://localhost:8080/user/1
+    $ curl -X PUT -d '{"name": "John", "age": 32}' ${API_ENDPOINT}/user/1
     {"id":1,"name":"John","age":32}
-    $ curl -X DELETE http://localhost:8080/user/1
+    $ curl -X DELETE ${API_ENDPOINT}/user/1
     {"result":"success"}
-    $ curl http://localhost:8080/user/1
+    $ curl ${API_ENDPOINT}/user/1
     {"error":"User not found"}
-    $ curl http://localhost:8080/users
+    $ curl ${API_ENDPOINT}/users
     []
     ```
 
@@ -90,9 +89,17 @@
         --member serviceAccount:service-<YOUR_SA_ID>@serverless-robot-prod.iam.gserviceaccount.com \
         --role roles/cloudsql.client
     ```
-1. Build, push and deploy the Docker image with:
+1. Build and push the Docker image with:
     ```
     gcloud builds submit --tag gcr.io/${PROJECT}/${CLOUD_RUN_SVC}
+    ```
+    Alternatively, you can build locally and deploy with:
+    ```
+    docker build --tag gcr.io/${PROJECT}/${CLOUD_RUN_SVC} .
+    docker push gcr.io/${PROJECT}/${CLOUD_RUN_SVC}
+    ```
+1. Deploy to Cloud Run with:
+    ```
     gcloud beta run deploy ${CLOUD_RUN_SVC} \
         --image gcr.io/${PROJECT}/${CLOUD_RUN_SVC} \
         --allow-unauthenticated \
@@ -101,12 +108,18 @@
     ````
 1. Retrieve the exposed endpoint with:
     ```
-    CLOUD_RUN_ENDPOINT=$(gcloud beta run services describe ${CLOUD_RUN_SVC} --format "value(status.address.hostname)")
+    API_ENDPOINT=$(gcloud beta run services describe ${CLOUD_RUN_SVC} --format "value(status.address.hostname)")
     ```
 1. Query the endpoint, for example with:
     ```
-    $ curl ${CLOUD_RUN_ENDPOINT}/users
-    []
+    $ curl ${API_ENDPOINT}/users
+    $ curl -X POST -d '{"name": "John", "age": 30}' ${API_ENDPOINT}/user
+    $ curl ${API_ENDPOINT}/users
+    $ curl ${API_ENDPOINT}/user/1
+    $ curl -X PUT -d '{"name": "John", "age": 32}' ${API_ENDPOINT}/user/1
+    $ curl -X DELETE ${API_ENDPOINT}/user/1
+    $ curl ${API_ENDPOINT}/user/1
+    $ curl ${API_ENDPOINT}/users
     ```
 
 ## References
